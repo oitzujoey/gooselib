@@ -4,15 +4,16 @@
 #include <string.h>
 
 
-void gooselib_allocator_init(gooselib_allocator_t *a,
-                             void *(*malloc)(void *, size_t),
-                             void (*free)(void *, void *),
-                             void *allocator_context) {
-	a->allocations = NULL;
-	a->length = 0;
-	a->malloc = malloc;
-	a->free = free;
-	a->allocator_context = allocator_context;
+gooselib_allocator_t gooselib_allocator_create(void *(*malloc)(void *, size_t),
+                                               void (*free)(void *, void *),
+                                               void *allocator_context) {
+	gooselib_allocator_t a;
+	a.allocations = NULL;
+	a.length = 0;
+	a.malloc = malloc;
+	a.free = free;
+	a.allocator_context = allocator_context;
+	return a;
 }
 
 void *gooselib_alloc(gooselib_allocator_t *a, size_t size) {

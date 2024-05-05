@@ -12,10 +12,9 @@ typedef struct {
 	void *allocator_context;
 } gooselib_allocator_t;
 
-void gooselib_allocator_init(gooselib_allocator_t *a,
-                             void *(*malloc)(void *, size_t),
-                             void (*free)(void *, void *),
-                             void *allocator_context);
+gooselib_allocator_t gooselib_allocator_create(void *(*malloc)(void *, size_t),
+                                               void (*free)(void *, void *),
+                                               void *allocator_context);
 
 void *gooselib_alloc(gooselib_allocator_t *a, size_t size);
 #define gooselib_alloc_type(a, length, type) gooselib_alloc(a, (length) * sizeof(type))
