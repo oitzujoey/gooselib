@@ -26,24 +26,33 @@ void *gooselib_alloc(gooselib_allocator_t *a, size_t size) {
 	{
 		void **allocations = a->malloc(a->allocator_context, (1 + a->length) * sizeof(void *));
 		if (allocations == NULL) {
-			(void) a->free(a->allocator_context, memory);  /* Because `memory`'s malloc was successful. */
+			/* Check if `free` exists because we might be using a tracing garbage collector. */
+			if (a->free != NULL) {
+				(void) a->free(a->allocator_context, memory);  /* Because `memory`'s malloc was successful. */
+			}
 			return NULL;
 		}
 		(void) memcpy(allocations, a->allocations, a->length);
 		allocations[a->length] = memory;
-		(void) a->free(a->allocator_context, a->allocations);
+		/* Check if `free` exists because we might be using a tracing garbage collector. */
+		if (a->free != NULL) {
+			(void) a->free(a->allocator_context, a->allocations);
+		}
 		a->allocations = allocations;
 	}
 	return memory;
 }
 
 void gooselib_free(gooselib_allocator_t *a) {
-	/* Free public allocations. */
-	for (size_t index = 0; index < a->length; index++) {
-		(void) a->free(a->allocator_context, a->allocations[index]);
+	/* Check if `free` exists because we might be using a tracing garbage collector. */
+	if (a->free != NULL) {
+		/* Free public allocations. */
+		for (size_t index = 0; index < a->length; index++) {
+			(void) a->free(a->allocator_context, a->allocations[index]);
+		}
+		/* Free allocation log. */
+		(void) a->free(a->allocator_context, a->allocations);
 	}
-	/* Free allocation log. */
-	(void) a->free(a->allocator_context, a->allocations);
 	a->allocations = NULL;
 	a->length = 0;
 }
