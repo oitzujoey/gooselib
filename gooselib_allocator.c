@@ -5,8 +5,8 @@
 
 
 void gooselib_allocator_init(gooselib_allocator_t *a,
-                             void *(*malloc)(size_t),
-                             void (*free)(void *),
+                             void *(*malloc)(void *, size_t),
+                             void (*free)(void *, void *),
                              void *allocator_context) {
 	a->allocations = NULL;
 	a->length = 0;
@@ -17,30 +17,32 @@ void gooselib_allocator_init(gooselib_allocator_t *a,
 
 void *gooselib_alloc(gooselib_allocator_t *a, size_t size) {
 	/* Allocate. */
-	void *memory = a->malloc(size);
+	void *memory = a->malloc(a->allocator_context, size);
 	if (memory == NULL) {
 		return NULL;
 	}
-	/* Bookkeeping. */
+	/* Log this allocation. */
 	{
-		void **allocations = a->malloc((1 + a->length) * sizeof(void *));
+		void **allocations = a->malloc(a->allocator_context, (1 + a->length) * sizeof(void *));
 		if (allocations == NULL) {
-			(void) a->free(memory);  /* Because `memory`'s malloc was successful. */
+			(void) a->free(a->allocator_context, memory);  /* Because `memory`'s malloc was successful. */
 			return NULL;
 		}
 		(void) memcpy(allocations, a->allocations, a->length);
 		allocations[a->length] = memory;
-		(void) a->free(a->allocations);
+		(void) a->free(a->allocator_context, a->allocations);
 		a->allocations = allocations;
 	}
 	return memory;
 }
 
 void gooselib_free(gooselib_allocator_t *a) {
+	/* Free public allocations. */
 	for (size_t index = 0; index < a->length; index++) {
-		(void) a->free(a->allocations[index]);
+		(void) a->free(a->allocator_context, a->allocations[index]);
 	}
-	(void) a->free(a->allocations);
+	/* Free allocation log. */
+	(void) a->free(a->allocator_context, a->allocations);
 	a->allocations = NULL;
 	a->length = 0;
 }
