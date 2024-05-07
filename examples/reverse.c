@@ -26,5 +26,9 @@ int main(int argc, char *argv[]) {
 	// decrease length by 1
 	gooselib_dstring_t space = gooselib_dstring_copyReallocateC(" ", callback_malloc, NULL);
 	gooselib_dstring_t result = gooselib_dstring_reverse(gooselib_dstring_join(space, args));
+	if (result.invalid) {
+		puts("Invalid string.");
+		return 1;
+	}
 	puts((const char *) result.bytes);
 }
