@@ -41,6 +41,7 @@ int gooselib_array_pushElement(gooselib_array_t *array, void *element) {
 			e = GOOSELIB_ALLOCFAILED;
 			goto cleanup;
 		}
+		(void) memcpy(block, localArray.elements, localArray.elements_length * localArray.element_size);
 		(void) localArray.free(localArray.allocator_context, localArray.elements);
 		localArray.elements = block;
 		localArray.elements_memorySize = 2 * newLengthSize;
@@ -82,6 +83,7 @@ int gooselib_array_pushElements(gooselib_array_t *array, const void *elements, s
 			e = GOOSELIB_ALLOCFAILED;
 			goto cleanup;
 		}
+		(void) memcpy(buffer, array->elements, array->elements_length * array->element_size);
 		(void) array->free(array->allocator_context, array->elements);
 		array->elements = buffer;
 		array->elements_memorySize = 2 * (array->elements_length + elements_length) * array->element_size;
@@ -194,7 +196,7 @@ int gooselib_array_setTop(gooselib_array_t *array, void *element) {
 
 int gooselib_array_get(gooselib_array_t *array, void *element, ptrdiff_t index) {
 	if ((index >= 0) && ((size_t) index < array->elements_length)) {
-		(void) memcpy(element, (char*)array->elements + index * array->element_size, array->element_size);
+		(void) memcpy(element, (uint8_t *) array->elements + index * array->element_size, array->element_size);
 		return GOOSELIB_OK;
 	}
 	return GOOSELIB_ERROR;
@@ -250,6 +252,9 @@ int gooselib_array_append(gooselib_array_t *arrayDestination, gooselib_array_t *
 		if (buffer == NULL) {
 			e = GOOSELIB_ALLOCFAILED;
 		}
+		(void) memcpy(buffer,
+		              arrayDestination->elements,
+		              arrayDestination->elements_length * arrayDestination->element_size);
 		(void) arrayDestination->free(arrayDestination->allocator_context, arrayDestination->elements);
 		arrayDestination->elements = buffer;
 		arrayDestination->elements_memorySize = (2

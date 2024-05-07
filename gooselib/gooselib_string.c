@@ -42,7 +42,7 @@ gooselib_dstring_t gooselib_dstring_copyReallocate(const gooselib_dstring_t stri
 		return dstring;
 	}
 	(void) memcpy(buffer, string.bytes, length);
-	buffer[length] = '\n';
+	buffer[length] = '\0';
 	dstring.bytes = buffer;
 	dstring.length = length;
 	return dstring;
@@ -54,13 +54,13 @@ gooselib_dstring_t gooselib_dstring_copyReallocateS(const gooselib_string_t stri
 	gooselib_dstring_t dstring = gooselib_dstring_create(malloc, allocator_context);
 	if (string.length == 0) return dstring;
 	size_t length = string.length;
-	uint8_t *buffer = malloc(allocator_context, (length + 1) * sizeof(uint8_t));
+	uint8_t *buffer = dstring.malloc(allocator_context, (length + 1) * sizeof(uint8_t));
 	if (buffer == NULL) {
 		dstring.invalid = true;
 		return dstring;
 	}
 	memcpy(buffer, string.bytes, length);
-	buffer[length] = '\n';
+	buffer[length] = '\0';
 	dstring.bytes = buffer;
 	dstring.length = length;
 	return dstring;

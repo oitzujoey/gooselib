@@ -19,4 +19,4 @@ add_executable(reverse examples/reverse.c)
 
 target_compile_options(reverse PUBLIC -Wall -Wextra -Wpedantic -Werror -Wdouble-promotion)
 
-target_link_libraries(reverse PUBLIC gooselib ubsan)
+target_link_libraries(reverse PUBLIC gooselib asan)

@@ -20,7 +20,14 @@ int main(int argc, char *argv[]) {
 		int e = gooselib_array_pushElement(&args, &arg);
 		if (e) {
 			printf("Push failed. (%i)\n", e);
+			return 1;
 		}
+	}
+	for (size_t index = 0; index < args.elements_length; index++) {
+		gooselib_dstring_t element;
+		int e = gooselib_array_get(&args, &element, index);
+		if (e) return 1;
+		puts((const char *) element.bytes);
 	}
 	// decrease length by 1
 	gooselib_dstring_t space = gooselib_dstring_copyReallocateC(" ", callback_malloc, NULL);
