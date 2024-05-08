@@ -32,13 +32,14 @@ void *gooselib_alloc(gooselib_allocator_t *a, size_t size) {
 			}
 			return NULL;
 		}
-		(void) memcpy(allocations, a->allocations, a->length);
+		(void) memcpy(allocations, a->allocations, a->length * sizeof(void *));
 		allocations[a->length] = memory;
 		/* Check if `free` exists because we might be using a tracing garbage collector. */
 		if (a->free != NULL) {
 			(void) a->free(a->allocator_context, a->allocations);
 		}
 		a->allocations = allocations;
+		a->length++;
 	}
 	return memory;
 }
