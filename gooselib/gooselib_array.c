@@ -19,7 +19,7 @@ gooselib_array_t gooselib_array_create(size_t element_size,
 }
 
 int gooselib_array_quit(gooselib_array_t *array) {
-	if (array->elements != NULL) {
+	if (array->elements != NULL && array->free != NULL) {
 		(void) array->free(array->allocator_context, array->elements);
 	}
 	array->elements_length = 0;
@@ -42,7 +42,9 @@ int gooselib_array_pushElement(gooselib_array_t *array, void *element) {
 			goto cleanup;
 		}
 		(void) memcpy(block, localArray.elements, localArray.elements_length * localArray.element_size);
-		(void) localArray.free(localArray.allocator_context, localArray.elements);
+		if (localArray.free != NULL) {
+			(void) localArray.free(localArray.allocator_context, localArray.elements);
+		}
 		localArray.elements = block;
 		localArray.elements_memorySize = 2 * newLengthSize;
 	}
@@ -84,7 +86,9 @@ int gooselib_array_pushElements(gooselib_array_t *array, const void *elements, s
 			goto cleanup;
 		}
 		(void) memcpy(buffer, array->elements, array->elements_length * array->element_size);
-		(void) array->free(array->allocator_context, array->elements);
+		if (array->free != NULL) {
+			(void) array->free(array->allocator_context, array->elements);
+		}
 		array->elements = buffer;
 		array->elements_memorySize = 2 * (array->elements_length + elements_length) * array->element_size;
 	}
@@ -215,8 +219,10 @@ int gooselib_array_set(gooselib_array_t *array, const void *element, ptrdiff_t i
 */
 int gooselib_array_copy(gooselib_array_t *arrayDestination, gooselib_array_t arraySource) {
 	int e = GOOSELIB_OK;
-	
-	(void) arrayDestination->free(arrayDestination->allocator_context, arrayDestination->elements);
+
+	if (arrayDestination->free != NULL) {
+		(void) arrayDestination->free(arrayDestination->allocator_context, arrayDestination->elements);
+	}
 	arrayDestination->elements = arrayDestination->malloc(arrayDestination->allocator_context,
 	                                                      arraySource.elements_memorySize);
 	if (arrayDestination->elements == NULL) {
@@ -255,7 +261,9 @@ int gooselib_array_append(gooselib_array_t *arrayDestination, gooselib_array_t *
 		(void) memcpy(buffer,
 		              arrayDestination->elements,
 		              arrayDestination->elements_length * arrayDestination->element_size);
-		(void) arrayDestination->free(arrayDestination->allocator_context, arrayDestination->elements);
+		if (arrayDestination->free != NULL) {
+			(void) arrayDestination->free(arrayDestination->allocator_context, arrayDestination->elements);
+		}
 		arrayDestination->elements = buffer;
 		arrayDestination->elements_memorySize = (2
 		                                         * (arrayDestination->elements_length + arraySource->elements_length)
@@ -277,5 +285,7 @@ void gooselib_array_clear(gooselib_array_t *array) {
 	if (array->elements_length == 0) return;
 	array->elements_length = 0;
 	array->elements_memorySize = 0;
-	(void) array->free(array->allocator_context, array->elements);
+	if (array->free != NULL) {
+		(void) array->free(array->allocator_context, array->elements);
+	}
 }
