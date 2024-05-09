@@ -18,14 +18,13 @@ gooselib_array_t gooselib_array_create(size_t element_size,
 	return array;
 }
 
-int gooselib_array_quit(gooselib_array_t *array) {
+void gooselib_array_quit(gooselib_array_t *array) {
 	if (array->elements != NULL && array->free != NULL) {
 		(void) array->free(array->allocator_context, array->elements);
 	}
 	array->elements_length = 0;
 	array->element_size = 0;
 	array->elements_memorySize = 0;
-	return GOOSELIB_OK;
 }
 
 int gooselib_array_pushElement(gooselib_array_t *array, void *element) {

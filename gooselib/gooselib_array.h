@@ -8,7 +8,7 @@ gooselib_array_t gooselib_array_create(size_t element_size,
                                        gooselib_malloc_t malloc,
                                        gooselib_free_t free,
                                        void *allocator_context);
-int gooselib_array_quit(gooselib_array_t *array);
+void gooselib_array_quit(gooselib_array_t *array);
 int gooselib_array_pushElement(gooselib_array_t *array, void *element);
 int gooselib_array_pushElements(gooselib_array_t *array, const void *elements, size_t elements_length);
 int gooselib_array_popElement(gooselib_array_t *array, void *element);
